@@ -1,0 +1,7 @@
+[package]
+name = "sql-on-rocks"
+version = "0.1.0"
+authors = ["ivz hh"]
+edition = "2018"
+
+[dependencies]
