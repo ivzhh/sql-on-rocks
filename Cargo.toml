@@ -4,6 +4,10 @@ version = "0.1.0"
 authors = ["ivz hh"]
 edition = "2018"
 
+[lib]
+name = "sql_on_rocks"
+test = true
+
 [dependencies]
 rocksdb = { path = "./rust-rocksdb" }
 serde = ""
