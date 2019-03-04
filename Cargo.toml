@@ -5,3 +5,8 @@ authors = ["ivz hh"]
 edition = "2018"
 
 [dependencies]
+rocksdb = { path = "./rust-rocksdb" }
+serde = ""
+serde_json = ""
+serde_derive = ""
+rmp-serde = "0.13.7"
