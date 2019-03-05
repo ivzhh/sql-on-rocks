@@ -7,45 +7,49 @@ pub enum Field {
     Int(String),
 }
 
-pub trait Table {
-    fn name(&self) -> &str;
-    fn fields(&self) -> &Vec<Field>;
-
-    fn schema_key(&self) -> Vec<u8> {
-        rmps::to_vec(&("schema", self.name())).unwrap()
-    }
-    fn schema_value(&self) -> Vec<u8> {
-        rmps::to_vec(&(self.fields())).unwrap()
-    }
+#[derive(Serialize, Deserialize, Debug)]
+pub enum ColumnBaseType {
+    Int(String),
+    Text(String),
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct User {
+pub enum ColumnType {
+    PrimaryKey(ColumnBaseType),
+    Nullable(ColumnBaseType),
+    NonNullable(ColumnBaseType),
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Index {
     name: String,
-    fields: Vec<Field>,
+    table_name: String,
+    column_indexes: Vec<i32>,
 }
 
-impl User {
-    pub fn new() -> Self {
-        Self {
-            name: "User".to_owned(),
-            fields: vec![Field::Int("id".to_owned()), Field::Int("score".to_owned())],
-        }
-    }
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Table {
+    name: String,
+    indexes: Vec<Index>,
+    // columns are sorted by name and indexed by offset
+    columns: Vec<ColumnType>,
+    // primary key can be one column or combination of several columns
+    primary_keys: Vec<i32>,
+    // no foreign keys for now
 }
 
-impl Table for User {
-    fn name(&self) -> &str {
-        self.name.as_str()
+impl Table {
+    pub fn new() -> self
+    {
+
     }
 
-    fn fields(&self) -> &Vec<Field> {
-        &self.fields
+    pub fn schema_key(&self) -> Vec<u8> {
+        rmps::to_vec(&("schema", self.name.as_str())).unwrap()
     }
-}
-
-pub enum FieldValue {
-    Int(i32, String),
+    pub fn schema_value(&self) -> Vec<u8> {
+        rmps::to_vec(&self).unwrap()
+    }
 }
 
 pub fn create_table(db: &DB, table: &Table) -> Result<(), Error> {
@@ -55,15 +59,17 @@ pub fn create_table(db: &DB, table: &Table) -> Result<(), Error> {
     )
 }
 
-pub fn insert_into(db: &DB, table: &Table, values: &[FieldValue]) -> Result<(), Error> {}
+//pub fn insert_into(db: &DB, table: &Table, values: &[FieldValue]) -> Result<(), Error> {}
 
 #[cfg(test)]
 mod tests {
-    use super::{create_table, Table, User};
+    use super::{create_table, Table};
     use rmps;
+    use rocksdb::DB;
+
     #[test]
     fn test_schema_key() {
-        assert_eq!(User::new().schema_key()[0], 0x92);
+        assert_eq!(Table::new().schema_key()[0], 0x92);
     }
 
     fn test_number_serialization_consistency() {
@@ -74,7 +80,7 @@ mod tests {
     }
 
     fn test_create_table() {
-        let db = DB::open_default("./test_folder/").unwrap();
-        create_table(db, User::new()).unwrap();
+        //let db = DB::open_default("./test_folder/").unwrap();
+        //create_table(db, User::new()).unwrap();
     }
 }
