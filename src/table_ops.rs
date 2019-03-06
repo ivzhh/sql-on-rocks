@@ -2,22 +2,31 @@ use rmps;
 use rocksdb::{Error, DB};
 use std::{string, vec};
 
-#[derive(Serialize, Deserialize, Debug)]
-pub enum Field {
-    Int(String),
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum ColumnDataType {
+    Int,
+    Text,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub enum ColumnBaseType {
-    Int(String),
-    Text(String),
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum Nullity {
+    PrimaryKey,
+    Nullable,
+    NonNullable,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-pub enum ColumnType {
-    PrimaryKey(ColumnBaseType),
-    Nullable(ColumnBaseType),
-    NonNullable(ColumnBaseType),
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ColumnDefinition {
+    name: String,
+    data_type: ColumnDataType,
+    nullity: Nullity,
+}
+
+impl ColumnDefinition
+{
+    pub fn cmp(&self, other: &Self) -> bool {
+        
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -32,16 +41,25 @@ pub struct Table {
     name: String,
     indexes: Vec<Index>,
     // columns are sorted by name and indexed by offset
-    columns: Vec<ColumnType>,
+    columns: Vec<ColumnDefinition>,
     // primary key can be one column or combination of several columns
     primary_keys: Vec<i32>,
     // no foreign keys for now
 }
 
 impl Table {
-    pub fn new() -> self
-    {
+    pub fn new(name: String) -> Self {
+        Table {
+            name,
+            indexes: Vec::new(),
+            columns: Vec::new(),
+            primary_keys: Vec::new(),
+        }
+    }
 
+    pub fn build_table(&mut self, db: &DB) -> &Self {
+        self.execute(db);
+        self
     }
 
     pub fn schema_key(&self) -> Vec<u8> {
@@ -49,6 +67,19 @@ impl Table {
     }
     pub fn schema_value(&self) -> Vec<u8> {
         rmps::to_vec(&self).unwrap()
+    }
+
+    pub fn set_columns(&mut self, columns: &[ColumnDefinition]) -> &Self {
+        self.columns.extend_from_slice(&columns);
+        self
+    }
+}
+
+impl Table {
+    fn execute(&mut self, db: &DB) -> () {
+        self.columns.sort_by(|a, b| a.name.cmp(&b.name));
+
+        create_table(db, self).unwrap();
     }
 }
 
@@ -69,9 +100,10 @@ mod tests {
 
     #[test]
     fn test_schema_key() {
-        assert_eq!(Table::new().schema_key()[0], 0x92);
+        assert_eq!(Table::new("User".to_owned()).schema_key()[0], 0x92);
     }
 
+    #[test]
     fn test_number_serialization_consistency() {
         assert_eq!(rmps::to_vec(&42).unwrap(), rmps::to_vec(&42u8).unwrap());
         assert_eq!(rmps::to_vec(&42).unwrap(), rmps::to_vec(&42u16).unwrap());
@@ -79,8 +111,9 @@ mod tests {
         assert_eq!(rmps::to_vec(&42).unwrap(), rmps::to_vec(&42u64).unwrap());
     }
 
+    #[test]
     fn test_create_table() {
-        //let db = DB::open_default("./test_folder/").unwrap();
-        //create_table(db, User::new()).unwrap();
+        let db = DB::open_default("./test_folder/").unwrap();
+        Table::new("User".to_owned()).build_table(&db);
     }
 }
