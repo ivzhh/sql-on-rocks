@@ -1,5 +1,6 @@
 use rmps;
 use rocksdb::{Error, DB};
+use std::cmp::Ordering;
 use std::{string, vec};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -22,10 +23,18 @@ pub struct ColumnDefinition {
     nullity: Nullity,
 }
 
-impl ColumnDefinition
-{
-    pub fn cmp(&self, other: &Self) -> bool {
-        
+impl ColumnDefinition {
+    pub fn cmp(&self, other: &Self) -> Ordering {
+        match self.nullity {
+            Nullity::PrimaryKey => match other.nullity {
+                Nullity::PrimaryKey => self.name.cmp(&other.name),
+                _ => Ordering::Greater,
+            },
+            _ => match other.nullity {
+                Nullity::PrimaryKey => Ordering::Less,
+                _ => self.name.cmp(&other.name),
+            },
+        }
     }
 }
 
@@ -34,6 +43,21 @@ pub struct Index {
     name: String,
     table_name: String,
     column_indexes: Vec<i32>,
+}
+
+pub enum IndexType {
+    Asc,
+    Desc,
+    Unique
+}
+
+impl Index {
+    pub fn index_key(&self, table: &Table) -> Vec<u8> {
+        rmps::to_vec(&(".index", table.name.as_str(), self.name.as_str())).unwrap()
+    }
+    pub fn index_value(&self, table: Table) -> Vec<u8> {
+        rmps::to_vec(&self).unwrap()
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -62,16 +86,20 @@ impl Table {
         self
     }
 
-    pub fn schema_key(&self) -> Vec<u8> {
-        rmps::to_vec(&("schema", self.name.as_str())).unwrap()
+    pub fn table_key(&self) -> Vec<u8> {
+        rmps::to_vec(&(".table", self.name.as_str())).unwrap()
     }
-    pub fn schema_value(&self) -> Vec<u8> {
+    pub fn table_value(&self) -> Vec<u8> {
         rmps::to_vec(&self).unwrap()
     }
 
     pub fn set_columns(&mut self, columns: &[ColumnDefinition]) -> &Self {
         self.columns.extend_from_slice(&columns);
         self
+    }
+
+    pub fn set_index(&mut self) -> &Self {
+
     }
 }
 
@@ -84,10 +112,7 @@ impl Table {
 }
 
 pub fn create_table(db: &DB, table: &Table) -> Result<(), Error> {
-    db.put(
-        table.schema_key().as_slice(),
-        table.schema_value().as_slice(),
-    )
+    db.put(table.table_key().as_slice(), table.table_value().as_slice())
 }
 
 //pub fn insert_into(db: &DB, table: &Table, values: &[FieldValue]) -> Result<(), Error> {}
@@ -100,7 +125,7 @@ mod tests {
 
     #[test]
     fn test_schema_key() {
-        assert_eq!(Table::new("User".to_owned()).schema_key()[0], 0x92);
+        assert_eq!(Table::new("User".to_owned()).table_key()[0], 0x92);
     }
 
     #[test]
