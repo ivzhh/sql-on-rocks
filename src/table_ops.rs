@@ -76,12 +76,26 @@ pub struct Table {
     column_map: HashMap<String, ColumnType>,
 }
 
+pub struct InsertStatement<'a> {
+    table: &'a Table
+}
+
 impl Table {
     pub fn table_key(&self) -> Vec<u8> {
         rmps::to_vec(&(".table", self.name.as_str())).unwrap()
     }
     pub fn table_value(&self) -> Vec<u8> {
         rmps::to_vec(&self).unwrap()
+    }
+
+    pub fn insert_into<T>(
+        &self,
+        db: &DB,
+        column_name: String,
+        column_value: T,
+    ) -> Result<(), Error> {
+        //db.put(table.table_key().as_slice(), table.table_value().as_slice())
+        Result::Ok(())
     }
 }
 
