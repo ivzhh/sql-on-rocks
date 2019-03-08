@@ -33,6 +33,14 @@ impl ColumnType {
             ColumnType::NonNullable(data) => data.get_name(),
         }
     }
+
+    pub fn get_inner(&self) -> ColumnDataType {
+        match self {
+            ColumnType::PrimaryKey(data) => data.clone(),
+            ColumnType::Nullable(data) => data.clone(),
+            ColumnType::NonNullable(data) => data.clone(),
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -71,8 +79,8 @@ impl TableBuilder {
 
         table
     }
-    pub fn set_columns(&mut self, columns: &[ColumnType]) -> &Self {
-        self.columns.extend_from_slice(columns);
+    pub fn set_columns(mut self, columns: Vec<ColumnType>) -> Self {
+        self.columns.extend_from_slice(columns.as_slice());
         self
     }
 }
@@ -92,6 +100,7 @@ pub struct InsertStatement<'a> {
 
 pub trait VecSerializer {
     fn write_msgpack_in_vec(&self, buf: &mut Vec<u8>) -> Option<()>;
+    fn check_declared_type(&self, declared_type: &ColumnType) -> bool;
 }
 
 impl VecSerializer for i64 {
@@ -99,6 +108,13 @@ impl VecSerializer for i64 {
         match rmp::encode::write_sint(buf, *self) {
             Err(_) => Some(()),
             _ => None,
+        }
+    }
+
+    fn check_declared_type(&self, declared_type: &ColumnType) -> bool {
+        match declared_type.get_inner() {
+            ColumnDataType::Int(_) => true,
+            _ => false,
         }
     }
 }
@@ -159,7 +175,9 @@ mod tests {
     use super::{Table, TableBuilder};
     use rmps;
     use rocksdb::DB;
+    use tempdir::TempDir;
 
+    use super::{ColumnDataType, ColumnType};
     use std::collections::HashMap;
 
     #[test]
@@ -184,12 +202,43 @@ mod tests {
     }
 
     #[test]
-    fn test_create_table() {
-        let db = DB::open_default("./test_folder/").unwrap();
-        let table = TableBuilder::new("User".to_owned()).build_table(&db);
+    fn test_create_table_empty() {
+        if let Ok(tmp_dir) = TempDir::new("") {
+            let db = DB::open_default(tmp_dir.path().to_str().unwrap()).unwrap();
+            let table = TableBuilder::new("User".to_owned()).build_table(&db);
 
-        let reply = db.get(table.table_key().as_slice()).unwrap().unwrap();
+            let reply = db.get(table.table_key().as_slice()).unwrap().unwrap();
 
-        assert_eq!(reply.to_vec(), table.table_value());
+            assert_eq!(reply.to_vec(), table.table_value());
+        }
+    }
+
+    #[test]
+    fn test_create_table_ints() {
+        if let Ok(tmp_dir) = TempDir::new("") {
+            let db = DB::open_default(tmp_dir.path().to_str().unwrap()).unwrap();
+            let table = TableBuilder::new("User".to_owned())
+                .set_columns(vec![ColumnType::PrimaryKey(ColumnDataType::Int(
+                    "id".to_owned(),
+                ))])
+                .build_table(&db);
+
+            table
+                .insert_into()
+                .set_kv(&"id".to_owned(), 1i64)
+                .unwrap()
+                .execute(&db)
+                .unwrap();
+            table
+                .insert_into()
+                .set_next(1i64)
+                .unwrap()
+                .execute(&db)
+                .unwrap();
+
+            let reply = db.get(table.table_key().as_slice()).unwrap().unwrap();
+
+            assert_eq!(reply.to_vec(), table.table_value());
+        }
     }
 }
