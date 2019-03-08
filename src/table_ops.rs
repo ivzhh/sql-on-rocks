@@ -1,6 +1,8 @@
+use rmp::encode;
 use rmps;
 use rocksdb::{Error, DB};
 use std::collections::HashMap;
+use std::option::Option;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum ColumnDataType {
@@ -49,15 +51,21 @@ impl TableBuilder {
     }
 
     pub fn build_table(self, db: &DB) -> Table {
-        let mut column_map: HashMap<String, ColumnType> = HashMap::new();
+        let mut column_map: HashMap<String, i32> = HashMap::new();
 
-        for col in self.columns.to_owned() {
-            column_map.insert(col.get_name().to_owned(), col);
+        let mut i = 0i32;
+
+        let columns = self.columns;
+
+        for col in columns.as_slice() {
+            column_map.insert(col.get_name().to_owned(), i);
+            i += 1;
         }
 
         let table = Table {
             name: self.name,
             column_map,
+            columns,
         };
 
         create_table(db, &table).unwrap();
@@ -73,11 +81,51 @@ impl TableBuilder {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Table {
     name: String,
-    column_map: HashMap<String, ColumnType>,
+    column_map: HashMap<String, i32>,
+    columns: Vec<ColumnType>,
 }
 
 pub struct InsertStatement<'a> {
-    table: &'a Table
+    table: &'a Table,
+    i: i32,
+    columns: Vec<Vec<u8>>,
+}
+
+pub trait VecSerializer {
+    fn write_msgpack_in_vec(&self, buf: &mut Vec<u8>) -> Option<()>;
+}
+
+impl VecSerializer for i64 {
+    fn write_msgpack_in_vec(&self, buf: &mut Vec<u8>) -> Option<()> {
+        match rmp::encode::write_sint(buf, *self) {
+            ValueWriteError => Some(()),
+            _ => None,
+        }
+    }
+}
+
+impl<'a> InsertStatement<'a> {
+    pub fn set_kv<T: VecSerializer>(&mut self, key: &String, value: T) -> Option<&mut Self> {
+        self.i = -1i32;
+        let i: usize = *self.table.column_map.get(key)? as usize;
+        if let Some(buf) = self.columns.get_mut(i) {
+            value.write_msgpack_in_vec(buf)?;
+            return Some(self);
+        }
+
+        None
+    }
+
+    pub fn set_next<T: VecSerializer>(&mut self, value: T) -> Option<&mut Self> {
+        let i: usize = self.i as usize;
+        self.i = self.i + 1;
+        if let Some(buf) = self.columns.get_mut(i) {
+            value.write_msgpack_in_vec(buf)?;
+            return Some(self);
+        }
+
+        None
+    }
 }
 
 impl Table {
@@ -88,14 +136,14 @@ impl Table {
         rmps::to_vec(&self).unwrap()
     }
 
-    pub fn insert_into<T>(
-        &self,
-        db: &DB,
-        column_name: String,
-        column_value: T,
-    ) -> Result<(), Error> {
-        //db.put(table.table_key().as_slice(), table.table_value().as_slice())
-        Result::Ok(())
+    pub fn insert_into(&self, db: &DB) -> InsertStatement {
+        let mut columns: Vec<Vec<u8>> = Vec::new();
+        columns.resize_with(self.columns.len(), Vec::new);
+        InsertStatement {
+            table: &self,
+            i: 0i32,
+            columns,
+        }
     }
 }
 
@@ -116,7 +164,8 @@ mod tests {
         assert_eq!(
             Table {
                 name: "User".to_owned(),
-                column_map: HashMap::new()
+                column_map: HashMap::new(),
+                columns: Vec::new(),
             }
             .table_key()[0],
             0x92
