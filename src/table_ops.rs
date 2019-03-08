@@ -1,4 +1,3 @@
-use rmp::encode;
 use rmps;
 use rocksdb::{Error, DB};
 use std::collections::HashMap;
@@ -98,7 +97,7 @@ pub trait VecSerializer {
 impl VecSerializer for i64 {
     fn write_msgpack_in_vec(&self, buf: &mut Vec<u8>) -> Option<()> {
         match rmp::encode::write_sint(buf, *self) {
-            ValueWriteError => Some(()),
+            Err(_) => Some(()),
             _ => None,
         }
     }
@@ -126,6 +125,10 @@ impl<'a> InsertStatement<'a> {
 
         None
     }
+
+    pub fn execute(&self, db: &DB) -> Result<(), rocksdb::Error> {
+        db.put(b"not-implemented", b"")
+    }
 }
 
 impl Table {
@@ -136,7 +139,7 @@ impl Table {
         rmps::to_vec(&self).unwrap()
     }
 
-    pub fn insert_into(&self, db: &DB) -> InsertStatement {
+    pub fn insert_into(&self) -> InsertStatement {
         let mut columns: Vec<Vec<u8>> = Vec::new();
         columns.resize_with(self.columns.len(), Vec::new);
         InsertStatement {
