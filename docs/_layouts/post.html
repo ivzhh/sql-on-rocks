@@ -7,15 +7,6 @@ layout: default
 
 <p class="view">by {{ page.author | default: site.author }}</p>
 
-<ul>
-  {% for toc_item in page.toc %}
-  <li><a href="{{ toc_item.url }}">{{ toc_item.title }}</a></li>
-  {% for toc_item in toc_item.children %}
-  <li><a href="{{ toc_item.url }}">{{ toc_item.title }}</a></li>
-  {% endfor %}
-  {% endfor %}
-</ul>
-
 {{content}}
 
 {% if page.tags %}
