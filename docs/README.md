@@ -41,7 +41,9 @@ Commercial databases are more feature complete and most important,
 they provide service and warranty. However, in the era of internet,
 users of database gradually stand in the frontier.
 The have to find out the new demands of databases and they have to 
-implement features to meet the demands. 
+implement features to meet the demands. With money from VC flowing into
+the internet industry, the companies become able to maintain teams to
+develop in house, instead of waiting for next version of commercial products.
 
 ## Data Structure
 
