@@ -13,6 +13,8 @@ rocksdb = { path = "./rust-rocksdb" }
 serde = ""
 serde_json = ""
 serde_derive = ""
+rmp = "^0.8"
 rmp-serde = "0.13.7"
 rmp-serialize = "0.8.0"
 rustc-serialize = ""
+tempdir = ""
