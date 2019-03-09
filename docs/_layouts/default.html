@@ -44,10 +44,12 @@
       {% endif %}
       <p>
         <ul>
-          {% for page in site.pages %}
+          {% for page in site.posts %}
+          {% if page.title %}
           <li>
             <a href="{{ page.url }}">{{ page.title }}</a>
           </li>
+          {% endif %}
           {% endfor %}
         </ul>
       </p>
