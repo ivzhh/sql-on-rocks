@@ -20,8 +20,30 @@ Software is a special kind of wheel: it is an ecosystem.
 For example, if you want to implement a relational database, then besides the
 core B-tree structure, you have also consider:
 
-* What language do you want to use
-* What platform do you want to 
+* Language of implementation
+* Is it cross-platform?
+* Embedded or standalone?
+* OLAP or OLTP
+* SQL language completeness; dialect of SQL to use
+* Isolation level and locking mechanism
+* Replication (physical and logical)
+* Distributed or not? (Spanner-like or Calvin-like)
+* Toolset: dump; importing; user management; etc.
+
+There are tons of details to be filled in. And this is just the beginning:
+users have the least of tolerance on bugs of database;
+users have least intention to switch, until they are pushed to.
+
+So why do the developers reinvent the wheel if there are so many decisions?
+The answer is they have to. Before internet era, the community of
+open source databases are relatively smaller than those of commercial competitors.
+Commercial databases are more feature complete and most important,
+they provide service and warranty. However, in the era of internet,
+users of database gradually stand in the frontier.
+The have to find out the new demands of databases and they have to 
+implement features to meet the demands. 
+
+## Data Structure
 
 Log-structure Merge Tree (LSM) is a classic paper in 1996 and it shows 
 the power of append-only structure in disk-oriented file writing.
