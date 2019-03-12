@@ -272,6 +272,11 @@ mod tests {
                 .execute(&db)
                 .unwrap();
 
+            table
+                .insert_into()
+                .execute(&db)
+                .expect_err("the column is not filled");
+
             let reply = db.get(table.table_key().as_slice()).unwrap().unwrap();
 
             assert_eq!(reply.to_vec(), table.table_value());
