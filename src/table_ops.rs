@@ -1,5 +1,6 @@
 use rmps;
 use rocksdb::{Error, DB};
+use std::boxed::Box;
 use std::collections::HashMap;
 use std::option::Option;
 
@@ -119,6 +120,23 @@ impl VecSerializer for i64 {
     }
 }
 
+pub trait InsertError {}
+
+impl InsertError for rocksdb::Error {}
+
+#[derive(Debug)]
+pub struct ConsistencyError {}
+
+impl InsertError for ConsistencyError {}
+
+impl InsertError for std::io::Error {}
+
+impl std::fmt::Debug for std::boxed::Box<dyn InsertError> {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "write error")
+    }
+}
+
 impl<'a> InsertStatement<'a> {
     pub fn set_kv<T: VecSerializer>(&mut self, key: &String, value: T) -> Option<&mut Self> {
         self.i = -1i32;
@@ -142,8 +160,26 @@ impl<'a> InsertStatement<'a> {
         None
     }
 
-    pub fn execute(&self, db: &DB) -> Result<(), rocksdb::Error> {
-        db.put(b"not-implemented", b"")
+    pub fn execute(&mut self, db: &DB) -> Result<(), Box<InsertError>> {
+        let mut i = 0;
+        for v in self.columns.iter_mut() {
+            if v.len() == 0 {
+                match self.table.columns[i] {
+                    ColumnType::Nullable(_) => match rmp::encode::write_nil(v) {
+                        Ok(_) => {}
+                        Err(error_from_rocks) => return Err(Box::new(error_from_rocks)),
+                    },
+                    _ => return Err(Box::new(ConsistencyError {})),
+                };
+            }
+
+            i += 1;
+        }
+
+        match db.put(b"key", b"value") {
+            Ok(_) => Ok(()),
+            Err(e) => Err(Box::new(e)),
+        }
     }
 }
 
