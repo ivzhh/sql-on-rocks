@@ -1,2 +1,5 @@
 theme: jekyll-theme-minimal
 url: https://ivzhh.github.io/sql-on-rocks
+
+plugins:
+  - jekyll-sitemap
