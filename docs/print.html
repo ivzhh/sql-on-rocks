@@ -1,0 +1,367 @@
+<!DOCTYPE HTML>
+<html lang="en" class="sidebar-visible no-js">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>SQL on Rocks</title>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff" />
+
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:500" rel="stylesheet" type="text/css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+        
+
+        
+    </head>
+    <body class="light">
+        <!-- Provide site root to javascript -->
+        <script type="text/javascript">
+            var path_to_root = "";
+            var default_theme = "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script type="text/javascript">
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script type="text/javascript">
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { } 
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            document.body.className = theme;
+            document.querySelector('html').className = theme + ' js';
+        </script>
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script type="text/javascript">
+            var html = document.querySelector('html');
+            var sidebar = 'hidden';
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            }
+            html.classList.remove('sidebar-visible');
+            html.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <ol class="chapter"><li><a href="Introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li><a href="how-to-map-table.html"><strong aria-hidden="true">2.</strong> Part 1: How to Map Table</a></li><li><a href="choose-an-encoding.html"><strong aria-hidden="true">3.</strong> Part 1.1: Choose An Encoding</a></li></ol>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                
+                <div id="menu-bar" class="menu-bar">
+                    <div id="menu-bar-sticky-container">
+                        <div class="left-buttons">
+                            <button id="sidebar-toggle" class="icon-button" type="button" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                                <i class="fa fa-bars"></i>
+                            </button>
+                            <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                                <i class="fa fa-paint-brush"></i>
+                            </button>
+                            <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                                <li role="none"><button role="menuitem" class="theme" id="light">Light (default)</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                                <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                            </ul>
+                            
+                            <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                                <i class="fa fa-search"></i>
+                            </button>
+                            
+                        </div>
+
+                        <h1 class="menu-title">SQL on Rocks</h1> 
+
+                        <div class="right-buttons">
+                            <a href="print.html" title="Print this book" aria-label="Print this book">
+                                <i id="print-button" class="fa fa-print"></i>
+                            </a>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" name="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+                
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script type="text/javascript">
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <a class="header" href="#tutorial-write-an-sql-engine-on-rocksdb" id="tutorial-write-an-sql-engine-on-rocksdb"><h1>Tutorial: Write An SQL Engine on RocksDB</h1></a>
+<a class="header" href="#table-of-contents" id="table-of-contents"><h2>Table of Contents</h2></a>
+<a class="header" href="#chapters" id="chapters"><h3>Chapters</h3></a>
+<ul>
+<li><a href="./how-to-map-table.html">How to Map Table to Key-value</a></li>
+</ul>
+<a class="header" href="#appendices" id="appendices"><h3>Appendices</h3></a>
+<ul>
+<li><a href="./choose-an-encoding.html">Choose An Encoding</a></li>
+</ul>
+<a class="header" href="#introduction" id="introduction"><h2>Introduction</h2></a>
+<p>When you read the title, you may think:
+people say &quot;Don't re-invent the wheel&quot; or &quot;If it ain't broke, don't fix it&quot;.
+But in the industry, it has never been the case. Re-implementations are like
+Dandelion on your lawn: they come back, stronger.
+Software is a special kind of wheel: it is an ecosystem.
+For example, if you want to implement a relational database, then besides the
+core B-tree structure, you have also consider:</p>
+<ul>
+<li>Language of implementation</li>
+<li>Is it cross-platform?</li>
+<li>Embedded or standalone?</li>
+<li>OLAP or OLTP</li>
+<li>SQL language completeness; dialect of SQL to use</li>
+<li>Isolation level and locking mechanism</li>
+<li>Replication (physical and logical)</li>
+<li>Distributed or not? (Spanner-like or Calvin-like)</li>
+<li>Toolset: dump; importing; user management; etc.</li>
+</ul>
+<p>There are tons of details to be filled in.
+The evolvement gradually hides the designs, which are always
+neat and straightforward in the beginning, with code for
+error handling, compatibility, performance, etc.
+The code becomes much less self-explanatory for the novice.
+For example, <i>MySQL has implemented SQL engine on
+MyISAM and InnoDB decades ago</i> <sup class="footnote-reference"><a href="#1">1</a></sup>. However, if you want to know
+how they did it, you have to read documents/code and
+use accurate keywords to dig it out of Google
+(MySQL supports the era of Internet; there are so many articles
+on it and thus the a lot of details are buried in thousands of
+pages; most of the articles are either general on introduction
+or specific on tuning for cluster).</p>
+<a class="header" href="#motivation" id="motivation"><h1>Motivation</h1></a>
+<p>I don't know why I prefer database topics. My daily browsing always
+leads to database related articles. I pay more attention to keywords
+like Postgres, TiDB, RocksDB, etc. So I guess I want to write
+a tutorial on implementing SQL on a key-value storage engine.
+After reading the blog from CockroachDB, I realize the importance
+of prefix scan. So I choose RocksDB to start with.</p>
+<p>A year ago, I learned Rust and as the result, I have a <code>hg status</code>
+implemented in Rust. But since then, I did not use Rust much.
+This year I want to pick Rust and implement the SQL-on-Rocks
+with Rust. This is just a personal choice. (I considered about
+using Go on Badger <sup class="footnote-reference"><a href="#2">2</a></sup> but eventually I hope to try without GC).</p>
+<a class="header" href="#goal" id="goal"><h1>Goal</h1></a>
+<p>The tutorial is expected to be a <strong>minimum</strong> example on building
+SQL upon RocksDB. Ideally, it should include these topics:</p>
+<ol start="0">
+<li>How to map table and index onto key value using CockroachDB's method <sup class="footnote-reference"><a href="#1">1</a></sup></li>
+<li>How to use Cranelift <sup class="footnote-reference"><a href="#3">3</a></sup> to generate code for <code>WHERE</code> clause</li>
+<li>How to build Calvin <sup class="footnote-reference"><a href="#4">4</a></sup> protocol using <code>raft-rs</code> <sup class="footnote-reference"><a href="#5">5</a></sup>.</li>
+</ol>
+<a class="header" href="#data-structure" id="data-structure"><h2>Data Structure</h2></a>
+<p>Log-structure Merge Tree (LSM) is a classic paper in 1996 and it shows
+the power of append-only structure in disk-oriented file writing.
+But &quot;The devil is in the detail&quot;: implementing an efficient LSM is not easy.
+LevelDB gets very famous as its SSTable has been well tested in production as part of BigTable.
+It has been proven to be efficient implementation as
+<a href="https://www.igvita.com/2012/02/06/sstable-and-log-structured-storage-leveldb/">&quot;implementation details matter a great deal&quot;</a>.
+However, the good greed drives industry to further dig out more from best practice;
+as a happy result, Facebook rolled out their RocksDB,
+an enhanced &quot;Swiss Army knife&quot; built upon LevelDB. Atop that,
+Facebook then starts to build MyRocks, a storage engine for MySQL 5.6.
+MyRocks utilizes.</p>
+<div class="footnote-definition" id="1"><sup class="footnote-definition-label">1</sup>
+<p><a href="https://www.cockroachlabs.com/blog/sql-in-cockroachdb-mapping-table-data-to-key-value-storage/">SQL in CockroachDB: Mapping Table Data to Key-Value Storage</a></p>
+</div>
+<div class="footnote-definition" id="2"><sup class="footnote-definition-label">2</sup>
+<p><a href="https://github.com/dgraph-io/badger">Fast key-value DB in Go</a></p>
+</div>
+<div class="footnote-definition" id="3"><sup class="footnote-definition-label">3</sup>
+<p><a href="https://github.com/CraneStation/cranelift#cranelift-code-generator">Cranelift Code Generator</a></p>
+</div>
+<div class="footnote-definition" id="4"><sup class="footnote-definition-label">4</sup>
+<p><a href="http://cs.yale.edu/homes/thomson/publications/calvin-sigmod12.pdf">Calvin: Fast Distributed Transactions for Partitioned Database Systems</a></p>
+</div>
+<div class="footnote-definition" id="5"><sup class="footnote-definition-label">5</sup>
+<p><a href="https://github.com/pingcap/raft-rs">Raft distributed consensus algorithm implemented in Rust.</a></p>
+</div>
+<a class="header" href="#how-to-map-table-to-key-value" id="how-to-map-table-to-key-value"><h1>How to Map Table to Key-value</h1></a>
+<a class="header" href="#where-to-start-the-implementation" id="where-to-start-the-implementation"><h2>Where to Start The Implementation</h2></a>
+<p><i>&quot;We can solve any problem by introducing an extra level of indirection.&quot;</i> <sup class="footnote-reference"><a href="#3">1</a></sup>.
+Database is one of the most complicated software.
+Database system engineers must jungle three balls:
+develop the features, improve performance, and ensure correctness.
+A modern database evolves a spectrum of multiple technologies:
+lower file system; fundamental storage engine; relational model mapper;
+query optimizer; concensus protocol and implementation; isolation level,
+monitoring etc. Luckily, abstraction is a fundamental tool to address this problem: we can separate
+each of these features into different layers and each layer has at least one open source
+choice. The era of Internet has established cornerstones for each layer.</p>
+<p>The first part of the tutorial is to map SQL's data model to
+lower storage engine. When I became curious about this topic, I did some literature review.
+CockroachDB <sup class="footnote-reference"><a href="#1">2</a></sup> and TiDB <sup class="footnote-reference"><a href="#2">3</a></sup>, the two NewSQL implementations, have very good
+documentation <sup class="footnote-reference"><a href="#4">4</a></sup> on how do they map the relational model to lower storage engine.
+I recommend you reading at least CockroachDB's article on this, as the TiDB's article is in Chinese.</p>
+<a class="header" href="#mapping-101" id="mapping-101"><h2>Mapping 101</h2></a>
+<p>Key-value store requires keys to be unique and thus we need to uniquely map data in SQL
+into unique keys. The data here are not only rows but also indexes.
+Normally, when you construct a key, the basic idea is <code>&lt;namespace&gt;::&lt;data&gt;</code>.
+There are three components here: <code>&lt;namespace&gt;</code>, encoding <code>::</code> and <code>&lt;data&gt;</code>.</p>
+<p><code>&lt;namespace&gt;</code> can be many things and the straightforward choice is table/index name.
+In SQL, uniqueness of columns is always within a table.
+This is a good choice and we will use table name as the <code>&lt;namespace&gt;</code>
+for row data and combination of table and index names for indexes.
+In later chapters, the <code>&lt;namespace&gt;</code> can be expanded to many other things.</p>
+<p><code>&lt;data&gt;</code> can contain the column name or ID but we still need some uniqueness.
+The default uniqueness in a table is primary key.
+So a popular way <sup class="footnote-reference"><a href="#2">3</a></sup> <sup class="footnote-reference"><a href="#3">1</a></sup> to build <code>&lt;data&gt;</code> is <code>table_name::column_name::primary_key_of_row</code>.</p>
+<p>The third component is encoding <code>::</code>. Encoding is important as it must satisfy two requirements:</p>
+<ul>
+<li>Stable prefix</li>
+<li>Fast/easy parsing</li>
+</ul>
+<p>Key-value databases like RocksDB and LevelDB save keys into different SST files.
+Each SST file covers a range of <code>[a, b)</code> (by default, byte array comparison).
+When you want to check a key <code>k</code>, database looks up in ranges' table and finds
+a range <code>[a_i, b_i)</code> that satisfy <code>k in [a_i, b_i)</code>. Database won't further look into
+any SST file till the range matches. This is the LST's way to handle indexes.
+RocksDB even has a prefix optimization to assist these operations.
+Considering a key <code>table_name::column_name::column_value::primary_key_of_row</code>,
+the prefix <code>table_name::column_name::column_value</code> can easily pick up
+all values of the column. Therefore, we need an encoding that preserves the byte order
+of the prefix: there is no way for any column of any row has a different
+<code>table_name::column_name::column_value</code> format.</p>
+<p>A simple solution is use the format as it is: each component is connected by double colons.
+However, the input is pure byte array, which means a key may contains double colons
+and this makes it hard to parse the encoding. One difference between human-readable
+and machine-parsable format is: machine can compute lengths easily.
+So machine-oriented format prefers recording lengths of components as metadata;
+human prefer stream without lengths metadata.</p>
+<div class="footnote-definition" id="1"><sup class="footnote-definition-label">2</sup>
+<p><a href="https://www.cockroachlabs.com/blog/sql-in-cockroachdb-mapping-table-data-to-key-value-storage/">SQL in CockroachDB: Mapping Table Data to Key-Value Storage</a></p>
+</div>
+<div class="footnote-definition" id="2"><sup class="footnote-definition-label">3</sup>
+<p><a href="https://pingcap.com/blog-cn/building-distributed-db-with-raft/">基于 Raft 构建弹性伸缩的存储系统的一些实践</a></p>
+</div>
+<div class="footnote-definition" id="3"><sup class="footnote-definition-label">1</sup>
+<p><a href="https://en.wikipedia.org/wiki/Fundamental_theorem_of_software_engineering">Fundamental theorem of software engineering</a></p>
+</div>
+<div class="footnote-definition" id="4"><sup class="footnote-definition-label">4</sup>
+<p>I am thankful to the trend of open source infrastructures:
+only rare company can implement from A to Z in house and
+barely any company wants to be locked in any non open source solutions.</p>
+</div>
+<div class="footnote-definition" id="5"><sup class="footnote-definition-label">5</sup>
+<p><a href="http://www.interdb.jp/pg/pgsql01.html">The Internals of PostgreSQL: 1.3. Internal Layout of a Heap Table File</a></p>
+</div>
+<div class="footnote-definition" id="6"><sup class="footnote-definition-label">6</sup>
+<p><a href="https://github.com/facebook/rocksdb/wiki/Prefix-Seek-API-Changes">RocksDB Prefix Seek API</a></p>
+</div>
+<a class="header" href="#choose-an-encoding-for-keys-and-values" id="choose-an-encoding-for-keys-and-values"><h1>Choose An Encoding for Keys And Values</h1></a>
+<a class="header" href="#msgpack" id="msgpack"><h2>Msgpack</h2></a>
+<a class="header" href="#inconsistency" id="inconsistency"><h3>Inconsistency</h3></a>
+<p>An example of inconsistency of msgpack is <a href="https://docs.rs/rmp/0.8.7/rmp/#detailed">number 42</a>.
+It can be encoded as either of fixed number, 8/16/32/64 bits unsigned numbers.
+This inconsistency is very dangerous: this can cause the <code>scan</code> with prefix missing the keys.
+The problem is with this variant integer types. Variant integers can be expressed in many ways.
+based on the type of the integer (8/16/32/64 bits). The encoder should be able to
+detect not only the integer type, but also integer value range.
+A small test for number 42 is added in the source code to verify this assumption.</p>
+<a class="header" href="#json" id="json"><h2>JSON</h2></a>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                        
+
+                        
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                
+
+                
+            </nav>
+
+        </div>
+
+        
+
+        
+
+        
+
+        
+        <script src="elasticlunr.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="mark.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="searcher.js" type="text/javascript" charset="utf-8"></script>
+        
+
+        <script src="clipboard.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="highlight.js" type="text/javascript" charset="utf-8"></script>
+        <script src="book.js" type="text/javascript" charset="utf-8"></script>
+
+        <!-- Custom JS scripts -->
+        
+
+        
+        
+        <script type="text/javascript">
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+        
+        
+
+    </body>
+</html>

@@ -1,0 +1,2 @@
+User-agent: *
+Sitemap: https://ivzhh.github.io/sql-on-rocks/sitemap.xml

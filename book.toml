@@ -1,0 +1,5 @@
+[book]
+authors = ["ivz hh"]
+multilingual = false
+src = "book-src"
+title = "SQL on Rocks"
