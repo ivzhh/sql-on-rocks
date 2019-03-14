@@ -3,3 +3,6 @@ authors = ["ivz hh"]
 multilingual = false
 src = "book-src"
 title = "SQL on Rocks"
+
+[build]
+build-dir = "docs"
