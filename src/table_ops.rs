@@ -332,13 +332,14 @@ mod tests {
                 rmp::encode::write_str(&mut key_prefix, "User").unwrap();
                 rmp::encode::write_str(&mut key_prefix, "id").unwrap();
 
-                let mut iter = db.prefix_iterator(key_prefix.as_slice());
+                let iter = db.prefix_iterator(key_prefix.as_slice());
 
                 for (key, value) in iter {
                     let decoded_key: (String, String, (i64,)) =
                         rmps::decode::from_slice(key.borrow()).unwrap();
+                    let decoded_value: i64 = rmps::decode::from_slice(value.borrow()).unwrap();
 
-                    println!("Saw {:?} {:?}", decoded_key, value);
+                    println!("Saw {:?} {:?}", decoded_key, decoded_value);
                 }
             }
 

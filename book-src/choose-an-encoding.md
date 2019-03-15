@@ -12,4 +12,14 @@ based on the type of the integer (8/16/32/64 bits). The encoder should be able t
 detect not only the integer type, but also integer value range.
 A small test for number 42 is added in the source code to verify this assumption.
 
+### Prefix Uncomparable
+
+RocksDB and its derivatives utilize prefix scan to replace B+ tree index.
+However, a string can not fit into this requirement. For example, two strings
+`abc` and `b`. The length is encoded in the first byte and thus `b` is smaller
+than `abc`; however, alphabetical sort should put `abc` before `b`.
+
+This is a key failure in choosing msgpack. When you construct a prefix,
+you cannot enumerate all lengths of prefixes.
+
 ## JSON
