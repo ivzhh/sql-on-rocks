@@ -141,6 +141,20 @@
                 <div id="content" class="content">
                     <main>
                         <a class="header" href="#choose-an-encoding-for-keys-and-values" id="choose-an-encoding-for-keys-and-values"><h1>Choose An Encoding for Keys And Values</h1></a>
+<p>Basic we have two types of choices: binary encoding for machine,
+and text encoding for human.</p>
+<p>So a human-oriented encoding prefers to define &quot;a boundary&quot; to define
+a element, like quote, line breaker and etc. For example, in Redis protocol,
+the string with length is encoded as <code>$6\r\nfoobar\r\n</code> <sup class="footnote-reference"><a href="#1">1</a></sup>. You need
+<code>\r\n</code> as some boundary to separate length from string content.
+If we use text-based stream message to encode our key and value,
+we need to use a similar method. (we cannot use Redis protocol,
+as the length is encoded in the beginning).</p>
+<p>Binary encoding is very intuitive on machine. We define
+byte ranges for different purposes and we don't need the boundary marks.</p>
+<p>The following will examine two types of encoding: msgpack (binary) and
+JSON (text). And after the discussion, I will bring up a fix for
+msgpack for prefix encoding.</p>
 <a class="header" href="#msgpack" id="msgpack"><h2>Msgpack</h2></a>
 <a class="header" href="#inconsistency" id="inconsistency"><h3>Inconsistency</h3></a>
 <p>An example of inconsistency of msgpack is <a href="https://docs.rs/rmp/0.8.7/rmp/#detailed">number 42</a>.
@@ -150,7 +164,19 @@ The problem is with this variant integer types. Variant integers can be expresse
 based on the type of the integer (8/16/32/64 bits). The encoder should be able to
 detect not only the integer type, but also integer value range.
 A small test for number 42 is added in the source code to verify this assumption.</p>
+<a class="header" href="#prefix-uncomparable" id="prefix-uncomparable"><h3>Prefix Uncomparable</h3></a>
+<p>RocksDB and its derivatives utilize prefix scan to replace B+ tree index.
+However, a string can not fit into this requirement. For example, two strings
+<code>abc</code> and <code>b</code>. The length is encoded in the first byte and thus <code>b</code> is smaller
+than <code>abc</code>; however, alphabetical sort should put <code>abc</code> before <code>b</code>.</p>
+<p>This is a key failure in choosing msgpack. When you construct a prefix,
+you cannot enumerate all lengths of prefixes. Thus you cannot construct
+a proper prefix.</p>
+<p>A solution will be stated in later section.</p>
 <a class="header" href="#json" id="json"><h2>JSON</h2></a>
+<div class="footnote-definition" id="1"><sup class="footnote-definition-label">1</sup>
+<p><a href="https://redis.io/topics/protocol">Redis Protocol specification</a></p>
+</div>
 
                     </main>
 
