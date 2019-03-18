@@ -18,9 +18,11 @@ The following will examine two types of encoding: msgpack (binary) and
 JSON (text). And after the discussion, I will bring up a fix for 
 msgpack for prefix encoding.
 
-## Msgpack
+## Two Case-studies
 
-### Inconsistency
+### Msgpack
+
+#### Inconsistency
 
 An example of inconsistency of msgpack is [number 42](https://docs.rs/rmp/0.8.7/rmp/#detailed).
 It can be encoded as either of fixed number, 8/16/32/64 bits unsigned numbers.
@@ -30,7 +32,7 @@ based on the type of the integer (8/16/32/64 bits). The encoder should be able t
 detect not only the integer type, but also integer value range.
 A small test for number 42 is added in the source code to verify this assumption.
 
-### Prefix Uncomparable
+#### Prefix Incomparable
 
 RocksDB and its derivatives utilize prefix scan to replace B+ tree index.
 However, a string can not fit into this requirement. For example, two strings
@@ -43,6 +45,6 @@ a proper prefix.
 
 A solution will be stated in later section.
 
-## JSON
+### JSON
 
 [^1]: [Redis Protocol specification](https://redis.io/topics/protocol)
